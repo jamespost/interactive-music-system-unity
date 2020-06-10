@@ -54,7 +54,6 @@ public class InteractiveMusicSystem : MonoBehaviour
 
         //currentBeatCount = 1;
         //currentBarCount = 1;
-
         
     }
     
@@ -62,11 +61,29 @@ public class InteractiveMusicSystem : MonoBehaviour
     {
         musicIsPlaying = true;
         //start updating currentBeatCount
-        StartCoroutine(updateBeatCount());
+        StartCoroutine(updateBeatCountScaledTime());
     }
 
+    
+
+    //a method to update currentBeatCount and currentBarCount off of dspTime (most accurate method)
+    private void updateBeatCountDSPTime()
+    {
+        //get the current dsptime
+        currentDSPTime = AudioSettings.dspTime;
+
+        //initialize variables
+        currentBeatCount = 0;
+        currentBarCount = 1;
+
+        double samplesPerTick = sampleRate * 60.0F / bpm * timeSigNumerator / timeSigDenominator;
+        double sample = AudioSettings.dspTime * sampleRate;
+
+    }
+
+
     //a method to update currentBeatCount based off of scaled time in seconds(very innacurate and causes wobbly timings)
-    IEnumerator updateBeatCount()
+    IEnumerator updateBeatCountScaledTime()
     {
         currentBeatCount = 0;
         currentBarCount = 1;
@@ -96,6 +113,7 @@ public class InteractiveMusicSystem : MonoBehaviour
         }
 
     }
+
     //debugging methods
     //a method to print dspTime
     public void PrintDSPTime()

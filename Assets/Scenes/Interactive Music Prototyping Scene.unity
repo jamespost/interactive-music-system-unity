@@ -189,6 +189,8 @@ MonoBehaviour:
   beatInSeconds: 0
   beatInSamples: 0
   initialDSPTime: 0
+  currentDSPTime: 0
+  playClickTrack: 1
   musicClips: []
   audioSources:
   - {fileID: 1696769012}
