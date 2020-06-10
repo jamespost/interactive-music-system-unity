@@ -5,7 +5,8 @@ using UnityEngine;
 
 public static class FadeMixerGroup
 {
-
+    ///taken from https://gamedevbeginner.com/how-to-fade-audio-in-unity-i-tested-every-method-this-ones-the-best/#second_method
+    ///
     public static IEnumerator StartFade(AudioMixer audioMixer, string exposedParam, float duration, float targetVolume)
     {
         float currentTime = 0;
