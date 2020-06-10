@@ -15,7 +15,7 @@ public class audioFades : MonoBehaviour
     private void Start()
     {
         //debug testing
-        FadeInMixerGroup(musicMixer);
+        //FadeInMixerGroup(musicMixer);
     }
 
     //fade in an audio mixer group
