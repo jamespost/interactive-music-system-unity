@@ -5,119 +5,204 @@ using UnityEngine.Audio;
 
 public class InteractiveMusicSystem : MonoBehaviour
 {
-    ///a class to handle all interactive music in game
-    ///
+    [SerializeField] public int currentBeat;
+    [SerializeField] public int currentMeasure;
 
-    //Rhymthmical data
-    //bpm of current song (default is 120bpm)
-    [SerializeField] private double bpm = 120;
-
-    //meter of current song    
-    [SerializeField] private int timeSigNumerator;
-    [SerializeField] private int timeSigDenominator;
-
-    [SerializeField] private int beatsPerBar;
-    [SerializeField] private int lengthOfBar;
-
-    [SerializeField] private int currentBeatCount;
-    [SerializeField] private int currentBarCount;
-    
-    [SerializeField] private double beatInSeconds;
-    [SerializeField] private double beatInSamples;
-
-    [SerializeField] private double initialDSPTime;
-    [SerializeField] private double currentDSPTime;
-
-    [SerializeField] private bool playClickTrack;
-
-    private double secondsInAMinute;
-    private double sampleRate;
-
-    //Sample/clip Data
-    //has a list of audio clips
-    [SerializeField] List<AudioClip> musicClips;
     [SerializeField] List<AudioSource> audioSources;
 
-    private bool musicIsPlaying = false;
+    //adapted from https://forum.unity.com/threads/do-people-not-realize-how-bad-audiosource-dsptime-is-can-someone-explain-how-it-works.402308/
 
-    private void Awake()
+    private void OnEnable()
     {
-        //initialize 
-        initialDSPTime = AudioSettings.dspTime;
+        Metronome.OnBeat += Beat;
+        Metronome.OnDownBeat += DownBeat;
 
-        sampleRate = AudioSettings.outputSampleRate;
+        currentBeat = 1;
+        //there seems to be a "buffer" time of the first beat for the timing to be accurate- resulting in the first OnDownBeat() method being called twice within a frame update- so a "count in" measure is needed before the system starts measure 1 to correct this error. this is acheived by initializing currentMeasure to -2 OnEnable()
+        currentMeasure = -2;
 
-        secondsInAMinute = 60;
 
-        beatInSeconds = secondsInAMinute / bpm;
-        beatInSamples = sampleRate / beatInSeconds;
+    }
 
-        //currentBeatCount = 1;
-        //currentBarCount = 1;
+    private void OnDisable()
+    {
+        Metronome.OnBeat -= Beat;
+        Metronome.OnDownBeat -= DownBeat;
+    }
+
+    void Beat()
+    {
+        //Do something here
+        currentBeat++;
+        if(currentBeat != 1)
+        {
+            //Debug.Log("current beat: " + currentBeat);
+        }
         
     }
-    
-    private void Start()
+
+    void DownBeat()
     {
-        musicIsPlaying = true;
-        //start updating currentBeatCount
-        StartCoroutine(updateBeatCountScaledTime());
-    }
+        //reset currentBeat to 1
+        currentBeat = 1;
+        
+        //increment currentMeasure
+        currentMeasure++;
+        //Debug.Log("current beat: " + currentBeat);
+        Debug.Log("current measure: " + currentMeasure);
 
-    
-
-    //a method to update currentBeatCount and currentBarCount off of dspTime (most accurate method)
-    private void updateBeatCountDSPTime()
-    {
-        //get the current dsptime
-        currentDSPTime = AudioSettings.dspTime;
-
-        //initialize variables
-        currentBeatCount = 0;
-        currentBarCount = 1;
-
-        double samplesPerTick = sampleRate * 60.0F / bpm * timeSigNumerator / timeSigDenominator;
-        double sample = AudioSettings.dspTime * sampleRate;
-
-    }
-
-
-    //a method to update currentBeatCount based off of scaled time in seconds(very innacurate and causes wobbly timings)
-    IEnumerator updateBeatCountScaledTime()
-    {
-        currentBeatCount = 0;
-        currentBarCount = 1;
-
-        for (; ; )
+        //at the start of the "song"
+        if(currentMeasure == 1)
         {
-            //get the current dsptime
-            currentDSPTime = AudioSettings.dspTime;
-            ////testing
-            //Debug.Log("beat = " + currentBeatCount);
-            ////Debug.Log("bar = " + currentBarCount);
-            if (playClickTrack)
-            {
-                audioSources[0].Play();
-                //audioSources[1].Play();
-            }
-
-            currentBeatCount++;
-
-            if ((currentBeatCount - 1) % timeSigNumerator == 0)
-            {
-                currentBarCount++;
-                Debug.Log("bar = " + currentBarCount);
-            }
-
-            yield return new WaitForSeconds((float)beatInSeconds);
+            //play the first audio source
+            audioSources[0].Play();
         }
-
+        //at bar 5 of the "song"
+        if(currentMeasure == 5)
+        {
+            //play the second audio source
+            audioSources[1].Play();
+        }
     }
 
-    //debugging methods
-    //a method to print dspTime
-    public void PrintDSPTime()
-    {
-        Debug.Log(AudioSettings.dspTime);
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ////a method to update currentBeatCount and currentBarCount off of dspTime (most accurate method)
+    //IEnumerator updateBeatCountDSPTime()
+    //{
+
+
+
+    //    samplesPerTick = sampleRate * 60.0F / bpm * timeSigNumerator / timeSigDenominator;
+    //    double sample = AudioSettings.dspTime * sampleRate;
+    //    int n = 0;
+    //    while(n < 32)
+    //    {
+    //        while (sample + n >= nextTick)
+    //        {
+    //            nextTick += samplesPerTick;
+
+    //            if (currentBeatCount < 4)
+    //            {
+    //                currentBeatCount++;
+    //            }
+    //            else
+    //            {
+    //                currentBeatCount = 1;
+    //            }
+
+
+    //            if ((currentBeatCount - 1) % timeSigNumerator == 0)
+    //            {
+    //                currentBarCount++;
+    //                Debug.Log("bar = " + currentBarCount);
+    //            }
+    //        }
+    //        n++;
+    //        yield return null;
+    //    }
+
+
+
+    //}
+
+
+    ////a method to update currentBeatCount based off of scaled time in seconds(very innacurate and causes wobbly timings)
+    //IEnumerator updateBeatCountScaledTime()
+    //{
+    //    currentBeatCount = 0;
+    //    currentBarCount = 0;
+
+    //    for (; ; )
+    //    {
+    //        //get the current dsptime
+    //        startTick = AudioSettings.dspTime;
+    //        ////testing
+    //        //Debug.Log("beat = " + currentBeatCount);
+    //        ////Debug.Log("bar = " + currentBarCount);
+    //        if (playClickTrack)
+    //        {
+    //            audioSources[0].Play();
+    //            //audioSources[1].Play();
+    //        }
+
+    //        if(currentBeatCount < 4)
+    //        {
+    //            currentBeatCount++;
+    //        }
+    //        else
+    //        {
+    //            currentBeatCount = 1;
+    //        }
+
+
+    //        if ((currentBeatCount - 1) % timeSigNumerator == 0)
+    //        {
+    //            currentBarCount++;
+    //            Debug.Log("bar = " + currentBarCount);
+    //        }
+
+    //        //test out playing a source at a certain bars downbeat
+    //        if (currentBarCount == 5 && currentBeatCount == 1)
+    //        {
+    //            //audioSources[1].PlayScheduled();
+    //        }
+    //        if (currentBarCount == 9 && currentBeatCount == 1)
+    //        {
+    //            audioSources[2].Play();
+    //        }
+
+    //        yield return new WaitForSeconds((float)beatInSeconds);
+    //    }
+
+    //}
+
+    ////debugging methods
+    ////a method to print dspTime
+    //public void PrintDSPTime()
+    //{
+    //    Debug.Log(AudioSettings.dspTime);
+    //}
 }
