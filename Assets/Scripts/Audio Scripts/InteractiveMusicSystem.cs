@@ -20,7 +20,7 @@ public class InteractiveMusicSystem : MonoBehaviour
 
         currentBeat = 1;
         //there seems to be a "buffer" time of the first beat for the timing to be accurate- resulting in the first OnDownBeat() method being called twice within a frame update- so a "count in" measure is needed before the system starts measure 1 to correct this error. this is acheived by initializing currentMeasure to -1 OnEnable()
-        currentMeasure = -1;
+        currentMeasure = -2;
 
 
     }
@@ -44,18 +44,21 @@ public class InteractiveMusicSystem : MonoBehaviour
 
     void DownBeat()
     {
-        //reset currentBeat to 1
-        currentBeat = 1;
+        if(currentBeat > 1)
+        {
+            //reset currentBeat to 1
+            currentBeat = 1;
+        }
+        
         
         //increment currentMeasure
         currentMeasure++;
-        //Debug.Log("current beat: " + currentBeat);
-        //Debug.Log("current measure: " + currentMeasure);
+        
+        Debug.Log("IMS current measure is: " + currentMeasure);
 
         //testing out playing random audiosources at specified rhythmic intervals
-        if(currentMeasure >= 1 && currentMeasure % 8 == 0)
+        if (currentMeasure >= 1 && currentMeasure % 8 == 0)
         {
-
             List<int> randomAudioSourcesToPlay;
             randomAudioSourcesToPlay = new List<int>();
 
@@ -64,34 +67,17 @@ public class InteractiveMusicSystem : MonoBehaviour
                 int randomResult = new int();
                 randomResult = (int)UnityEngine.Random.Range(0, audioSources.Count);
 
-                randomAudioSourcesToPlay.Add(randomResult);
-                //if (!audioSources[randomResult].isPlaying)
-                //{
-                //    audioSources[randomResult].Play();
-                //}
+                randomAudioSourcesToPlay.Add(randomResult);                
 
                 audioSources[randomResult].Play();
-                Debug.Log("random source selected: " + randomResult);
+                //Debug.Log("random source selected: " + randomResult);
             }
-
-            //int randomAudioSourceElement = (int)UnityEngine.Random.Range(0, audioSources.Count);
-            //audioSources[randomAudioSourceElement].Play();
+            
+            
         }
 
 
-        ////testing accurate playback of audiosources
-        ////at the start of the "song"
-        //if(currentMeasure == 1)
-        //{
-        //    //play the first audio source
-        //    //audioSources[0].Play();
-        //}
-        ////at bar 5 of the "song"
-        //if(currentMeasure == 5)
-        //{
-        //    //play the second audio source
-        //    //audioSources[1].Play();
-        //}
+        
     }
 
 
